@@ -4,21 +4,14 @@
 неофициальный API sberazs.ru. Сканирует заданные области, шлёт
 уведомления при появлении новых данных.
 
-## Установка на Ubuntu-сервер с нуля
 
-### 1. Подключение к серверу
-
-```bash
-ssh root@ВАШ_IP_АДРЕС
-```
-
-### 2. Обновление системы
+### 1. Обновление системы
 
 ```bash
 apt update && apt upgrade -y
 ```
 
-### 3. Установка Docker
+### 2. Установка Docker
 
 ```bash
 curl -fsSL https://get.docker.com -o get-docker.sh
@@ -38,26 +31,22 @@ docker compose version
 apt install -y docker-compose-plugin
 ```
 
-### 4. Установка git
+### 3. Установка git
 
 ```bash
 apt install -y git
 ```
 
-### 5. Клонирование репозитория
+### 4. Клонирование репозитория
 
 ```bash
 cd ~
-git clone https://github.com/ВАШ_ЮЗЕРНЕЙМ/ВАШ_РЕПО.git
-cd ВАШ_РЕПО
+git clone https://github.com/Rypleshhh/sberazs_bot
+cd sberazs
 ```
 
-Если репозиторий приватный, git попросит логин и пароль. Обычный
-пароль GitHub не подойдёт — нужен Personal Access Token (GitHub →
-Settings → Developer settings → Personal access tokens → Generate
-new token, права `repo`), его и вставляете вместо пароля.
 
-### 6. Настройка токена бота
+### 5. Настройка токена бота
 
 ```bash
 cp .env.example .env
@@ -67,19 +56,18 @@ nano .env
 Впишите токен, полученный у [@BotFather](https://t.me/BotFather):
 
 ```
-BOT_TOKEN=123456789:AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw
+BOT_TOKEN=ВашТокен
 ```
 
-Сохранить в nano: `Ctrl+O` → `Enter` → выйти `Ctrl+X`.
 
-### 7. Настройка геозон
+### 6. Настройка геозон
 
 ```bash
 cp app/geoboxes_local.py.example app/geoboxes_local.py
 nano app/geoboxes_local.py
 ```
 
-Впишите свои координаты (формат: `min_lon, min_lat, max_lon, max_lat`):
+Впишите свои координаты области (формат: `min_lon, min_lat, max_lon, max_lat`):
 
 ```python
 GEOBOXES = {
@@ -92,10 +80,8 @@ GEOBOXES = {
 подсмотреть в DevTools на самом сайте sberazs.ru (запрос
 `/api/stations?bbox=...`). Сохранить: `Ctrl+O` → `Enter` → `Ctrl+X`.
 
-Этот файл в `.gitignore` — никогда не попадёт в публичный репозиторий,
-даже при `git push`.
 
-### 8. Сборка и запуск
+### 7. Сборка и запуск
 
 ```bash
 docker compose up -d --build
@@ -104,7 +90,7 @@ docker compose up -d --build
 Первая сборка займёт несколько минут — скачивается образ с
 предустановленным браузером Chromium (пара гигабайт), это нормально.
 
-### 9. Проверка
+### 8. Проверка
 
 ```bash
 docker compose ps
