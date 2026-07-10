@@ -1,53 +1,126 @@
 # sberazs-bot
 
 Личный Telegram-бот для мониторинга наличия топлива на АЗС через
-неофициальный API sberazs.ru.
+неофициальный API sberazs.ru. Сканирует заданные области, шлёт
+уведомления при появлении новых данных.
 
-## Настройка
+## Установка на Ubuntu-сервер с нуля
 
-1. **Заполните области.** Скопируйте шаблон и впишите свои координаты
-   (этот файл в `.gitignore`, никогда не попадёт в публичный репозиторий):
+### 1. Подключение к серверу
 
-   ```bash
-   cp app/geoboxes_local.py.example app/geoboxes_local.py
-   ```
+```bash
+ssh root@ВАШ_IP_АДРЕС
+```
 
-   Затем отредактируйте `app/geoboxes_local.py`:
+### 2. Обновление системы
 
-   ```python
-   GEOBOXES = {
-       "moscow": (37.3, 55.5, 37.9, 55.9),
-       "spb": (30.1, 59.7, 30.6, 60.1),
-   }
-   ```
+```bash
+apt update && apt upgrade -y
+```
 
-   Координаты — `(min_lon, min_lat, max_lon, max_lat)`. Получить их
-   можно через bboxfinder.com/geojson.io либо подсмотреть в DevTools
-   на сайте (см. историю подбора bbox в вашем предыдущем скрипте).
+### 3. Установка Docker
 
-2. **Получите токен бота** у [@BotFather](https://t.me/BotFather).
+```bash
+curl -fsSL https://get.docker.com -o get-docker.sh
+sh get-docker.sh
+```
 
-3. **Скопируйте `.env.example` в `.env`** и впишите токен:
+Проверка:
 
-   ```bash
-   cp .env.example .env
-   # отредактируйте .env
-   ```
+```bash
+docker --version
+docker compose version
+```
 
-## Запуск (Docker)
+Если `docker compose version` не находится:
+
+```bash
+apt install -y docker-compose-plugin
+```
+
+### 4. Установка git
+
+```bash
+apt install -y git
+```
+
+### 5. Клонирование репозитория
+
+```bash
+cd ~
+git clone https://github.com/ВАШ_ЮЗЕРНЕЙМ/ВАШ_РЕПО.git
+cd ВАШ_РЕПО
+```
+
+Если репозиторий приватный, git попросит логин и пароль. Обычный
+пароль GitHub не подойдёт — нужен Personal Access Token (GitHub →
+Settings → Developer settings → Personal access tokens → Generate
+new token, права `repo`), его и вставляете вместо пароля.
+
+### 6. Настройка токена бота
+
+```bash
+cp .env.example .env
+nano .env
+```
+
+Впишите токен, полученный у [@BotFather](https://t.me/BotFather):
+
+```
+BOT_TOKEN=123456789:AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw
+```
+
+Сохранить в nano: `Ctrl+O` → `Enter` → выйти `Ctrl+X`.
+
+### 7. Настройка геозон
+
+```bash
+cp app/geoboxes_local.py.example app/geoboxes_local.py
+nano app/geoboxes_local.py
+```
+
+Впишите свои координаты (формат: `min_lon, min_lat, max_lon, max_lat`):
+
+```python
+GEOBOXES = {
+    "moscow": (37.3, 55.5, 37.9, 55.9),
+    "spb": (30.1, 59.7, 30.6, 60.1),
+}
+```
+
+Получить координаты можно через bboxfinder.com/geojson.io либо
+подсмотреть в DevTools на самом сайте sberazs.ru (запрос
+`/api/stations?bbox=...`). Сохранить: `Ctrl+O` → `Enter` → `Ctrl+X`.
+
+Этот файл в `.gitignore` — никогда не попадёт в публичный репозиторий,
+даже при `git push`.
+
+### 8. Сборка и запуск
 
 ```bash
 docker compose up -d --build
 ```
 
-База данных (`stations.db`) хранится в `./data` на хосте — при
-пересборке контейнера данные не теряются.
+Первая сборка займёт несколько минут — скачивается образ с
+предустановленным браузером Chromium (пара гигабайт), это нормально.
 
-Логи:
+### 9. Проверка
+
+```bash
+docker compose ps
+```
+
+Статус должен быть `Up`. Логи:
 
 ```bash
 docker compose logs -f
 ```
+
+`Ctrl+C` — выйти из просмотра логов (контейнер продолжит работать в
+фоне).
+
+Найдите бота в Telegram по username, отправьте `/start` — должен
+ответить списком команд.
 
 ## Команды бота
 
@@ -63,6 +136,33 @@ docker compose logs -f
 - `/unsubscribe` — отписаться от всех уведомлений
 - `/my_subscriptions` — посмотреть текущие подписки
 
+## Обслуживание
+
+**Остановить бота:**
+
+```bash
+docker compose down
+```
+
+**Обновить после изменений в коде:**
+
+```bash
+git pull
+docker compose up -d --build
+```
+
+**Размер базы данных:**
+
+```bash
+du -sh data/
+```
+
+**Зайти внутрь контейнера для отладки:**
+
+```bash
+docker compose exec bot bash
+```
+
 ## Важные нюансы
 
 - **Первый скан каждой области** только наполняет базу и не рассылает
@@ -71,8 +171,8 @@ docker compose logs -f
 - **Куки антибот-защиты** кэшируются в памяти процесса и
   переполучаются автоматически только при ошибке 401/403 от API — не
   на каждый цикл, чтобы не гонять браузер зря.
-- Параметры `STEP_LON`/`STEP_LAT` подбирайте под плотность станций в
-  ваших областях — слишком крупный шаг сетки может пропускать станции
-  на границах ячеек.
+- Параметры `STEP_LON`/`STEP_LAT` в `app/config.py` подбирайте под
+  плотность станций в ваших областях — слишком крупный шаг сетки
+  может пропускать станции на границах ячеек.
 - Сервис построен на данных банка — использование в личных целях,
   без публичного распространения/переиспользования результатов.
