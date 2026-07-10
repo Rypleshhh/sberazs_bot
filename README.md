@@ -42,7 +42,7 @@ apt install -y git
 ```bash
 cd ~
 git clone https://github.com/Rypleshhh/sberazs_bot
-cd sberazs
+cd sberazs_bot
 ```
 
 
