@@ -36,8 +36,8 @@
 2. Клонируйте репозиторий:
 
    ```bash
-   git clone https://github.com/ВАШ_ЮЗЕРНЕЙМ/ВАШ_РЕПО.git
-   cd ВАШ_РЕПО
+   git clone https://github.com/Rypleshhh/sberazs_bot
+   cd sberazs_bot
    ```
 
 3. Настройте области:
@@ -88,8 +88,8 @@
 2. Клонируйте тот же репозиторий:
 
    ```bash
-   git clone https://github.com/ВАШ_ЮЗЕРНЕЙМ/ВАШ_РЕПО.git
-   cd ВАШ_РЕПО
+   git clone https://github.com/Rypleshhh/sberazs_bot
+   cd sberazs_bot
    ```
 
 3. Настройте `.env.bot`:
