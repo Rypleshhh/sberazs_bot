@@ -90,7 +90,7 @@ GEOBOXES = {
     "moscow": (37.3, 55.5, 37.9, 55.9),
 }
 ```
-
+Получить можно на сайте bboxfinder.com/geojson.io
 ```bash
 cp .env.scraper.example .env.scraper
 nano .env.scraper
