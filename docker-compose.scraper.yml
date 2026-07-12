@@ -1,0 +1,12 @@
+services:
+  scraper:
+    build:
+      context: .
+      dockerfile: Dockerfile.scraper
+    restart: unless-stopped
+    env_file:
+      - .env.scraper
+    volumes:
+      - ./data:/app/data
+    # Портов наружу не открываем — скрапер за NAT, сам стучится на
+    # лёгкий сервер (LIGHT_SERVER_URL), входящие соединения ему не нужны.

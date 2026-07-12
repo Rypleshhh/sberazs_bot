@@ -1,0 +1,12 @@
+FROM mcr.microsoft.com/playwright/python:v1.44.0-jammy
+
+WORKDIR /app
+
+COPY requirements-scraper.txt .
+RUN pip install --no-cache-dir -r requirements-scraper.txt
+
+COPY app ./app
+
+RUN mkdir -p /app/data
+
+CMD ["python", "-m", "app.main_scraper"]
