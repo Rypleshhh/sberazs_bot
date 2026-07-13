@@ -1,0 +1,12 @@
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile.bot
+    restart: unless-stopped
+    env_file:
+      - .env.bot
+    ports:
+      - "8080:8080"   # сюда стучится скрапер (у него нет белого IP)
+    volumes:
+      - ./data:/app/data

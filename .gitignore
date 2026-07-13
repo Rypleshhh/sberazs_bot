@@ -1,0 +1,8 @@
+.env
+.env.scraper
+.env.bot
+data/
+__pycache__/
+*.pyc
+.venv/
+app/geoboxes_local.py
